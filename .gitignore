@@ -1,0 +1,32 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.pyd
+*.env
+venv/
+.env/
+*.swp
+
+# Django
+*.sqlite3
+/db.sqlite3
+/media/
+staticfiles/
+*.log
+
+# Tailwind / Node
+node_modules/
+dist/
+*.css.map
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db

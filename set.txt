@@ -1,0 +1,26 @@
+tools_project/
+│
+├── apps/                 
+│   ├── core
+│   ├── pdf_tool
+│   └── 
+│
+├── templates/
+│   ├── includes/base.html
+│   ├── includes/footer.html
+│   ├── includes/navbar
+│   ├── tools/pdf_tool/index.html
+│   │   
+│   │   
+│
+├── static/
+│   ├── css/
+│   ├── js/
+│   └── images/
+│
+├── media/
+│   ├── uploads/
+│   └── outputs/
+│
+├── manage.py
+└── setup.bat             
