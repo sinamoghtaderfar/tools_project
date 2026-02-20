@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'apps.core',
     'apps.pdf_tool',
+    'apps.accounts',
+    'apps.files',
 ]
 
 MIDDLEWARE = [
@@ -126,3 +128,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+
+# Database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'tools_db',
+        'USER': 'root',
+        'PASSWORD': 'Ba109447#',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+    }
+}

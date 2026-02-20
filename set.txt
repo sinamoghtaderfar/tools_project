@@ -3,7 +3,7 @@ tools_project/
 ├── apps/                 
 │   ├── core
 │   ├── pdf_tool
-│   └── 
+│   └── accounts
 │
 ├── templates/
 │   ├── includes/base.html
