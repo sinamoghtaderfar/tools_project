@@ -1,0 +1,42 @@
+{% extends "includes/base.html" %}
+
+{% block content %}
+
+<div class="max-w-5xl mx-auto py-12 px-4">
+
+    <h1 class="text-3xl font-bold mb-8">
+        My Dashboard
+    </h1>
+
+    {% if files %}
+        <div class="grid md:grid-cols-2 gap-6">
+            {% for file in files %}
+                <div class="bg-white p-6 rounded-xl shadow">
+
+                    <h3 class="font-semibold text-lg mb-2">
+                        {{ file.original_name }}
+                    </h3>
+
+                    <p class="text-sm text-gray-500 mb-2">
+                        Tool: {{ file.tool_type }}
+                    </p>
+
+                    <p class="text-sm text-gray-400 mb-4">
+                        {{ file.created_at }}
+                    </p>
+
+                    {% if file.converted_file %}
+                        <a href="{{ file.converted_file.url }}"
+                           class="text-blue-600 hover:underline">
+                            Download Converted File
+                        </a>
+                    {% endif %}
+
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}
