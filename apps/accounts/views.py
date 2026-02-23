@@ -5,6 +5,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from apps.files.models import UserFile
+from django.core.files.storage import FileSystemStorage
+from apps.files.models import UserFile
 
 def register_view(request):
     if request.method == "POST":
@@ -32,5 +34,27 @@ def register_view(request):
 
 @login_required
 def dashboard_view(request):
+    files = UserFile.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, "accounts/dashboard.html", {"files": files})
+
+
+
+
+
+@login_required
+def dashboard_view(request):
+    if request.method == "POST":
+        uploaded_file = request.FILES.get("file")
+        tool_type = request.POST.get("tool_type")
+
+        if uploaded_file:
+            # فعلاً فقط ذخیره می‌کنیم (تبدیل واقعی بعداً)
+            user_file = UserFile.objects.create(
+                user=request.user,
+                original_file=uploaded_file,
+                original_name=uploaded_file.name,
+                tool_type=tool_type
+            )
+
     files = UserFile.objects.filter(user=request.user).order_by('-created_at')
     return render(request, "accounts/dashboard.html", {"files": files})

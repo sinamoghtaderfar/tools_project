@@ -1,40 +1,96 @@
 {% extends "includes/base.html" %}
-
 {% block content %}
 
-<div class="max-w-5xl mx-auto py-12 px-4">
+<div class="max-w-6xl mx-auto py-14 px-6">
 
-    <h1 class="text-3xl font-bold mb-8">
+    <!-- Page Title -->
+    <h1 class="text-4xl font-extrabold mb-12 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
         My Dashboard
     </h1>
 
+    <!-- Upload Section -->
+    <div class="bg-white/80 backdrop-blur-lg border border-gray-100 p-10 rounded-3xl shadow-lg mb-14 transition hover:shadow-xl">
+
+        <h2 class="text-2xl font-semibold mb-8 text-gray-800">
+            Upload & Convert File
+        </h2>
+
+        <form method="POST" enctype="multipart/form-data" action="{% url 'upload_file' %}" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- File Input -->
+            <div>
+                <label class="block text-sm font-medium text-gray-600 mb-2">
+                    Choose File
+                </label>
+                <input type="file" name="file" required
+                       class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm
+                              focus:ring-2 focus:ring-blue-500 focus:outline-none
+                              file:mr-4 file:py-2 file:px-4
+                              file:rounded-lg file:border-0
+                              file:text-sm file:font-semibold
+                              file:bg-blue-50 file:text-blue-600
+                              hover:file:bg-blue-100">
+            </div>
+
+            <!-- Select Tool -->
+            <div>
+                <label class="block text-sm font-medium text-gray-600 mb-2">
+                    Convert To
+                </label>
+                <select name="tool_type"
+                        class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm
+                               focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="pdf">Convert to PDF</option>
+                    <option value="docx">Convert to DOCX</option>
+                </select>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit"
+                    class="w-full bg-gradient-to-r from-blue-600 to-indigo-600
+                           text-white font-semibold py-3 rounded-xl
+                           transition hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">
+                Upload
+            </button>
+        </form>
+
+    </div>
+
+    <!-- Files Section -->
     {% if files %}
-        <div class="grid md:grid-cols-2 gap-6">
-            {% for file in files %}
-                <div class="bg-white p-6 rounded-xl shadow">
+    <h2 class="text-2xl font-semibold mb-8 text-gray-800">
+        Your Files
+    </h2>
 
-                    <h3 class="font-semibold text-lg mb-2">
-                        {{ file.original_name }}
-                    </h3>
+    <div class="grid md:grid-cols-2 gap-8">
+        {% for file in files %}
+        <div class="bg-white p-8 rounded-2xl shadow-md border border-gray-100
+                    transition hover:shadow-xl hover:-translate-y-1 duration-300">
 
-                    <p class="text-sm text-gray-500 mb-2">
-                        Tool: {{ file.tool_type }}
-                    </p>
+            <h3 class="font-semibold text-lg mb-3 text-gray-800 truncate">
+                {{ file.original_name }}
+            </h3>
 
-                    <p class="text-sm text-gray-400 mb-4">
-                        {{ file.created_at }}
-                    </p>
+            <p class="text-sm text-gray-500 mb-2">
+                Tool: <span class="font-medium text-gray-700">{{ file.tool_type }}</span>
+            </p>
 
-                    {% if file.converted_file %}
-                        <a href="{{ file.converted_file.url }}"
-                           class="text-blue-600 hover:underline">
-                            Download Converted File
-                        </a>
-                    {% endif %}
+            <p class="text-sm text-gray-400 mb-6">
+                {{ file.created_at }}
+            </p>
 
-                </div>
-            {% endfor %}
+            {% if file.converted_file %}
+            <a href="{{ file.converted_file.url }}"
+               class="inline-block bg-blue-50 text-blue-600 text-sm font-medium
+                      px-4 py-2 rounded-lg transition hover:bg-blue-100">
+                Download Converted File
+            </a>
+            {% endif %}
+
         </div>
+        {% endfor %}
+    </div>
     {% endif %}
 
 </div>
