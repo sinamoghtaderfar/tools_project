@@ -2,15 +2,15 @@ tools_project/
 │
 ├── apps/                 
 │   ├── core
-│   ├── pdf_tool
+│   ├── files
 │   └── accounts
 │
 ├── templates/
 │   ├── includes/base.html
 │   ├── includes/footer.html
 │   ├── includes/navbar
-│   ├── tools/pdf_tool/index.html
-│   │   
+│   ├── tools/
+│   │── accounts/dashboard.html - login.html - register.html
 │   │   
 │
 ├── static/
