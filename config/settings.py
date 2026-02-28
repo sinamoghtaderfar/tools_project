@@ -130,6 +130,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 # Database
 DATABASES = {
@@ -147,3 +150,8 @@ DATABASES = {
 LOGIN_REDIRECT_URL = '/accounts/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
+#SESSION_COOKIE_AGE = 1209600   # 2 weeks
+
+SESSION_COOKIE_AGE = 180  # 3 minutes
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
