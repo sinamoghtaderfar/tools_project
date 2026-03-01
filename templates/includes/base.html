@@ -21,6 +21,8 @@
     {% block extra_css %}{% endblock %}
     {% load static %}
 
+    <link rel="stylesheet" href="{% static 'css/tool_page.css' %}">
+
 </head>
 
 <body class="bg-gray-50 min-h-screen flex flex-col overflow-x-hidden">
@@ -47,6 +49,9 @@
     {% if user.is_authenticated %}
     <script src="{% static 'js/auto-logout.js' %}"></script>
     {% endif %}
+
+    <!-- <script src="{% static 'js/tool_page.js' %}"></script> -->
+
 </body>
 
 </html>
