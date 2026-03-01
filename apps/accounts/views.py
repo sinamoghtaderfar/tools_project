@@ -35,27 +35,28 @@ def register_view(request):
 
     return render(request, "accounts/register.html")
 
-
 def login_view(request):
-    """Custom login view that shows messages"""
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
-        
-        # Authenticate user
+        remember_me = request.POST.get("remember_me")
+
         user = authenticate(request, username=username, password=password)
-        
+
         if user is not None:
-            # Login successful
             login(request, user)
-            messages.success(request, "Successfully logged in!")  # Success message
+
+            #  remember me
+            if not remember_me:
+                request.session.set_expiry(0)
+
+            messages.success(request, "Successfully logged in!")
             return redirect("dashboard")
+
         else:
-            # Login failed
-            messages.error(request, "Invalid username or password")  # Error message
+            messages.error(request, "Invalid username or password")
             return redirect("login")
-    
-    # GET request - show login form
+
     return render(request, "accounts/login.html")
 
 
