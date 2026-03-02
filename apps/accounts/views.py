@@ -6,7 +6,10 @@ from django.contrib.auth.decorators import login_required
 from apps.files.models import UserFile  # Single import
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
-
+from django.urls import reverse
+from django.views.decorators.cache import never_cache, cache_control
+from django.contrib.auth import logout
+from django.views.decorators.csrf import csrf_protect
 def register_view(request):
     """User registration view with messages"""
     if request.method == "POST":
@@ -35,30 +38,54 @@ def register_view(request):
 
     return render(request, "accounts/register.html")
 
+@never_cache
+@cache_control(no_cache=True, must_revalidate=True, no_store=True, max_age=0)
 def login_view(request):
+    if request.user.is_authenticated:
+        
+        next_url = request.GET.get("next") or "//"
+        return redirect(next_url)
+    
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
         remember_me = request.POST.get("remember_me")
+        next_url = request.POST.get("next") or request.GET.get("next")
 
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
             login(request, user)
-
-            #  remember me
             if not remember_me:
                 request.session.set_expiry(0)
 
             messages.success(request, "Successfully logged in!")
-            return redirect("dashboard")
+
+            if next_url:
+                if next_url.startswith("/"):
+                    return redirect(next_url)
+                else:
+                    try:
+                        return redirect(reverse(next_url))
+                    except:
+                        return redirect("/")  # fallback
+            else:
+                # default redirect
+                return redirect("/")  
 
         else:
             messages.error(request, "Invalid username or password")
             return redirect("login")
 
-    return render(request, "accounts/login.html")
-
+    # GET request
+    next_url = request.GET.get("next")
+    return render(request, "accounts/login.html", {"next": next_url})
+@csrf_protect
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request)
+        return redirect('login')
+    return redirect('dashboard')
 
 @login_required
 def dashboard_view(request):
@@ -89,3 +116,5 @@ def keep_alive(request):
         "status": "ok",
         "message": "Session extended"
     })
+    
+    

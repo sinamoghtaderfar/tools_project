@@ -1,6 +1,6 @@
 import os
 import tempfile
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 import io
@@ -8,7 +8,8 @@ from PIL import Image
 from pdf2docx import Converter
 from PyPDF2 import PdfMerger
 import zipfile
-
+from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
 def home(request):
     return render(request, 'home.html')
@@ -125,3 +126,103 @@ def guest_tool(request, tool_name):
 
     # GET request
     return render(request, "tools/tool_page.html", {"tool_name": tool_name})
+
+
+
+
+
+TOOLS = {
+    "word": {
+        "title": "Word Tools",
+        "icon": "📝",
+        "tools": [
+            {"name": "word_to_pdf", "display": "Word to PDF", "url": "word_to_pdf", "requires_login": True},
+            {"name": "word_to_txt", "display": "Word to TXT", "url": "word_to_txt", "requires_login": True},
+            {"name": "compress_word", "display": "Compress Word", "url": "compress_word", "requires_login": True},
+        ]
+    },
+    "pdf": {
+        "title": "PDF Tools",
+        "icon": "📄",
+        "tools": [
+            {"name": "convert-pdf", "display": "Convert PDF", "url": "convert-pdf", "requires_login": False},
+            {"name": "merge-pdf", "display": "Merge PDF", "url": "merge-pdf", "requires_login": False},
+            {"name": "pdf_to_word", "display": "PDF to Word", "url": "pdf_to_word", "requires_login": True},
+            {"name": "pdf_to_txt", "display": "PDF to TXT", "url": "pdf_to_txt", "requires_login": True},
+            {"name": "compress_pdf", "display": "Compress PDF", "url": "compress_pdf", "requires_login": True},
+        ]
+    },
+    "image": {
+        "title": "Image Tools",
+        "icon": "🖼️",
+        "tools": [
+            {"name": "compress-image", "display": "Compress Image", "url": "compress-image", "requires_login": False},
+            {"name": "to_jpg", "display": "Convert to JPG", "url": "to_jpg", "requires_login": True},
+            {"name": "to_png", "display": "Convert to PNG", "url": "to_png", "requires_login": True},
+            {"name": "to_gif", "display": "Convert to GIF", "url": "to_gif", "requires_login": True},
+            {"name": "compress_image", "display": "Compress Image", "url": "compress_image", "requires_login": True},
+        ]
+    },
+    "archive": {
+        "title": "Archive Tools",
+        "icon": "📦",
+        "tools": [
+            {"name": "extract", "display": "Extract Archive", "url": "extract", "requires_login": True},
+        ]
+    },
+    "excel": {
+        "title": "Excel Tools",
+        "icon": "📊",
+        "tools": [
+            {"name": "to_excel", "display": "CSV to Excel", "url": "to_excel", "requires_login": True},
+            {"name": "to_csv", "display": "Excel to CSV", "url": "to_csv", "requires_login": True},
+        ]
+    }
+}
+
+def tools_list(request):
+    """show tools list with dynamic login labels"""
+    tools_categories = TOOLS.copy()  
+    user_logged_in = request.user.is_authenticated
+
+    for category in tools_categories.values():
+        for tool in category["tools"]:
+            if tool["requires_login"]:
+                if user_logged_in:
+                    tool["status_text"] = "Available for you"
+                    tool["border_color"] = "border-green-400"
+                else:
+                    tool["status_text"] = "Login Required"
+                    tool["border_color"] = "border-yellow-400"
+            else:
+                tool["status_text"] = "Free"
+                tool["border_color"] = "border-green-400"
+
+    context = {
+        "tools_categories": tools_categories
+    }
+    return render(request, "tools/tools_list.html", context)
+
+
+def tool_page(request, tool_slug):
+    tool_data = next(
+        (t for c in TOOLS.values() for t in c["tools"] if t["url"] == tool_slug),
+        None
+    )
+    if not tool_data:
+        messages.error(request, "Tool not found.")
+        return redirect("tools_list")
+
+    requires_login = tool_data["requires_login"]
+    tool_display_name = tool_data["display"]
+
+    if requires_login:
+        if not request.user.is_authenticated:
+            login_url = f"{reverse('login')}?next={request.path}"
+            messages.warning(request, f"Please log in to use '{tool_display_name}' tool.")
+            return redirect(login_url)
+        if requires_login and request.user.is_authenticated:
+            messages.info(request, f"'{tool_display_name}' is available for you! Redirecting to dashboard...")
+            return redirect("dashboard")
+
+    return guest_tool(request, tool_slug)

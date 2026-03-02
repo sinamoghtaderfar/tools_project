@@ -26,48 +26,45 @@
 
                 {% if user.is_authenticated %}
 
-                    <!-- USER DROPDOWN -->
-                    <div class="relative group">
+                <!-- USER DROPDOWN -->
+                <div class="relative group">
 
-                        <button class="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition">
-                            <span class="font-medium text-gray-700">
-                                {{ user.username }}
-                            </span>
-                        </button>
+                    <button
+                        class="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition">
+                        <span class="font-medium text-gray-700">
+                            {{ user.username }}
+                        </span>
+                    </button>
 
-                        <div class="absolute right-0 mt-2 w-44 bg-white border rounded-lg shadow-lg
+                    <div class="absolute right-0 mt-2 w-44 bg-white border rounded-lg shadow-lg
                                     opacity-0 invisible group-hover:opacity-100 group-hover:visible
                                     transition-all duration-200">
 
-                            <a href="{% url 'dashboard' %}"
-                               class="block px-4 py-2 hover:bg-gray-100">
-                                Dashboard
-                            </a>
+                        <a href="{% url 'dashboard' %}" class="block px-4 py-2 hover:bg-gray-100">
+                            Dashboard
+                        </a>
 
-                            <a href="#"
-                               class="block px-4 py-2 hover:bg-gray-100">
-                                Profile
-                            </a>
+                        <a href="#" class="block px-4 py-2 hover:bg-gray-100">
+                            Profile
+                        </a>
 
-                            <form method="post" action="{% url 'logout' %}">
-                                {% csrf_token %}
-                                <button type="submit"
-                                        class="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500">
-                                    Logout
-                                </button>
-                            </form>
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500">
+                                logout
+                            </button>
+                        </form>
 
-                        </div>
                     </div>
+                </div>
 
                 {% else %}
 
-                    <!-- LOGIN BUTTON -->
-                    <a href="{% url 'login' %}"
-                       class="bg-blue-600 text-white px-5 py-2 rounded-full 
+                <!-- LOGIN BUTTON -->
+                <a href="{% url 'login' %}" class="bg-blue-600 text-white px-5 py-2 rounded-full 
                               hover:bg-blue-700 transition duration-200 shadow-sm">
-                        Login
-                    </a>
+                    Login
+                </a>
 
                 {% endif %}
 
