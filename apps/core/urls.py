@@ -9,4 +9,6 @@ urlpatterns = [
     
     
     path('tool/<str:tool_slug>/', views.tool_page, name='tool_page'),
+    
+    
 ]

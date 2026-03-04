@@ -9,15 +9,25 @@
     </h1>
 
     <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-        Manage your PDFs, Images, and Documents easily with our fast,
-        secure and completely free online tools.
+        Manage your PDFs, Images, and Documents easily with our fast, secure and completely free online tools.
     </p>
 
     <!-- Search Bar -->
-    <div class="max-w-xl mx-auto relative">
-        <input type="text" placeholder="Search for a tool..." class="w-full px-6 py-3 rounded-full border shadow-sm
-                      focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <div class="max-w-xl mx-auto relative mb-10">
+        <input type="text" id="toolSearch" placeholder="Search for a tool..."
+            class="w-full px-6 py-3 rounded-full border shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+        <div id="searchResults" class="absolute left-0 right-0 mt-2 bg-white border rounded-lg shadow-lg z-50 hidden"></div>
     </div>
+
+    <!-- Tools Data -->
+    <script>
+        const allTools = [
+            { "name": "Merge PDF", "url": "{% url 'tool_page' 'merge-pdf' %}" },
+            { "name": "Compress Image", "url": "{% url 'tool_page' 'compress-image' %}" },
+            { "name": "Convert PDF", "url": "{% url 'tool_page' 'convert-pdf' %}" }
+        ];
+    </script>
 </section>
 
 <!-- ================= TOOLS SECTION ================= -->
@@ -26,83 +36,11 @@
         Popular Tools
     </h2>
 
-    <div class="grid md:grid-cols-3 gap-8">
-
-        <!-- Tool Card -->
-        <div class="bg-white rounded-2xl shadow-md p-6 hover:shadow-xl transition">
-            <div class="text-blue-600 text-4xl mb-4">📄</div>
-            <h3 class="text-xl font-semibold mb-2">Merge PDF</h3>
-            <p class="text-gray-600 text-sm mb-4">
-                Combine multiple PDF files into a single document.
-            </p>
-            <a href="{% url 'tool_page' 'merge-pdf' %}" class="text-blue-600 font-medium hover:underline">
-                Use Tool →
-            </a>
-        </div>
-
-        <!-- Tool Card -->
-        <div class="bg-white rounded-2xl shadow-md p-6 hover:shadow-xl transition">
-            <div class="text-green-600 text-4xl mb-4">🖼️</div>
-            <h3 class="text-xl font-semibold mb-2">Compress Image</h3>
-            <p class="text-gray-600 text-sm mb-4">
-                Reduce image size without losing quality.
-            </p>
-            <a href="{% url 'tool_page' 'compress-image' %}" class="text-blue-600 font-medium hover:underline">
-                Use Tool →
-            </a>
-        </div>
-
-        <!-- Tool Card -->
-        <div class="bg-white rounded-2xl shadow-md p-6 hover:shadow-xl transition">
-            <div class="text-purple-600 text-4xl mb-4">🔄</div>
-            <h3 class="text-xl font-semibold mb-2">Convert PDF</h3>
-            <p class="text-gray-600 text-sm mb-4">
-                Convert PDF to Word, Excel, or Images instantly.
-            </p>
-            <a href="{% url 'tool_page' 'convert-pdf' %}" class="text-blue-600 font-medium hover:underline">
-                Use Tool →
-            </a>
-        </div>
-
+    <div class="grid md:grid-cols-3 gap-8" id="toolsGrid">
+        <!-- Tool cards will be inserted by JS -->
     </div>
 </section>
-
-<!-- ================= FEATURES SECTION ================= -->
-<section class="py-16 bg-white rounded-3xl shadow-inner mt-16">
-    <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">
-        Why Choose Us?
-    </h2>
-
-    <div class="grid md:grid-cols-3 gap-10 text-center">
-
-        <div>
-            <div class="text-4xl mb-4">⚡</div>
-            <h3 class="font-semibold text-lg mb-2">Fast Processing</h3>
-            <p class="text-gray-600 text-sm">
-                All tools run instantly with optimized performance.
-            </p>
-        </div>
-
-        <div>
-            <div class="text-4xl mb-4">🔒</div>
-            <h3 class="font-semibold text-lg mb-2">Secure & Private</h3>
-            <p class="text-gray-600 text-sm">
-                Your files are automatically deleted after processing.
-            </p>
-        </div>
-
-        <div>
-            <div class="text-4xl mb-4">🌍</div>
-            <h3 class="font-semibold text-lg mb-2">Accessible Anywhere</h3>
-            <p class="text-gray-600 text-sm">
-                Works on all devices without installation.
-            </p>
-        </div>
-
-    </div>
-</section>
-
-<!-- ================= CTA SECTION ================= -->
+<!-- ================= CTA / EXPLORE ALL TOOLS ================= -->
 <section class="text-center py-16">
     <h2 class="text-3xl font-bold text-gray-800 mb-6">
         Ready to Get Started?
@@ -113,6 +51,5 @@
         Explore All Tools
     </a>
 </section>
-    <script src="{% static 'js/tool_page.js' %}"></script>
 
 {% endblock %}
