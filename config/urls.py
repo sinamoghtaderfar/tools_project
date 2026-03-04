@@ -24,6 +24,7 @@ urlpatterns = [
     path('', include('apps.core.urls')),
     path('accounts/', include('apps.accounts.urls')),
     path("files/", include("apps.files.urls")),
+    path('editor/', include('apps.editor.urls', namespace='editor')),
 ]
 
 if settings.DEBUG:

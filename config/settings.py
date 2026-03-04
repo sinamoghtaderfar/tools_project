@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'apps.core',
-    'apps.pdf_tool',
+    'apps.editor',
     'apps.accounts',
     'apps.files',
 ]
