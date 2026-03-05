@@ -10,12 +10,11 @@ from PIL import Image
 import pandas as pd
 import zipfile
 import uuid
-from django.contrib import messages
-from django.http import Http404, FileResponse
+from django.http import FileResponse
 import PyPDF2
 from pdf2docx import Converter
 import pdfplumber
-import openpyxl
+
 
 @login_required
 def upload_file(request):
@@ -44,7 +43,7 @@ def process_tool(request, file_id):
 
     if request.method == "POST":
         tool_type = request.POST.get("tool_type")
-        
+
         # Validate tool_type
         valid_tools = {
             ".doc": ["word_to_pdf", "word_to_txt", "compress_word"],
@@ -61,19 +60,21 @@ def process_tool(request, file_id):
             ".xls": ["to_csv"],
             ".xlsx": ["to_csv"],
         }
-        
+
         input_path = user_file.file.path
         name, ext = os.path.splitext(user_file.file.name)
         ext = ext.lower()
-        
+
         # Check if tool_type is valid for this file format
         if ext not in valid_tools or tool_type not in valid_tools[ext]:
             messages.error(request, "Invalid operation for this file type")
             return redirect("dashboard")
-        
+
         user_file.tool_type = tool_type
-        
-        output_dir = os.path.join(settings.MEDIA_ROOT, 'outputs', f'user_{request.user.id}')
+
+        output_dir = os.path.join(
+            settings.MEDIA_ROOT, "outputs", f"user_{request.user.id}"
+        )
         os.makedirs(output_dir, exist_ok=True)
 
         output_name = str(uuid.uuid4())
@@ -83,7 +84,7 @@ def process_tool(request, file_id):
             # ---------------- WORD FILES (.doc, .docx) ----------------
             if ext in [".doc", ".docx"]:
                 doc = Document(input_path)
-                
+
                 if tool_type == "word_to_pdf":
                     pdf = FPDF()
                     pdf.add_page()
@@ -94,7 +95,9 @@ def process_tool(request, file_id):
                         try:
                             pdf.multi_cell(0, 8, text)
                         except:
-                            pdf.multi_cell(0, 8, text.encode('latin-1', 'ignore').decode('latin-1'))
+                            pdf.multi_cell(
+                                0, 8, text.encode("latin-1", "ignore").decode("latin-1")
+                            )
                     converted_path = os.path.join(output_dir, f"{output_name}.pdf")
                     pdf.output(converted_path)
                     messages.success(request, "Word file successfully converted to PDF")
@@ -108,13 +111,15 @@ def process_tool(request, file_id):
 
                 elif tool_type == "compress_word":
                     converted_path = os.path.join(output_dir, f"{output_name}.zip")
-                    with zipfile.ZipFile(converted_path, 'w', compression=zipfile.ZIP_DEFLATED) as zipf:
+                    with zipfile.ZipFile(
+                        converted_path, "w", compression=zipfile.ZIP_DEFLATED
+                    ) as zipf:
                         zipf.write(input_path, arcname=os.path.basename(input_path))
                     messages.success(request, "Word file successfully compressed")
 
             # ---------------- PDF FILES (.pdf) ----------------
             elif ext == ".pdf":
-                
+
                 if tool_type == "pdf_to_word":
                     try:
                         converted_path = os.path.join(output_dir, f"{output_name}.docx")
@@ -122,8 +127,10 @@ def process_tool(request, file_id):
                         cv = Converter(input_path)
                         cv.convert(converted_path, start=0, end=None)
                         cv.close()
-                        messages.success(request, "PDF file successfully converted to Word")
-                    except Exception as e:
+                        messages.success(
+                            request, "PDF file successfully converted to Word"
+                        )
+                    except Exception:
                         # Method 2: Using PyPDF2 as fallback
                         try:
                             pdf_reader = PyPDF2.PdfReader(input_path)
@@ -134,11 +141,15 @@ def process_tool(request, file_id):
                                 if text:
                                     doc.add_paragraph(text)
                             doc.save(converted_path)
-                            messages.success(request, "PDF file successfully converted to Word")
+                            messages.success(
+                                request, "PDF file successfully converted to Word"
+                            )
                         except Exception as e2:
-                            messages.error(request, f"Error converting PDF to Word: {str(e2)}")
+                            messages.error(
+                                request, f"Error converting PDF to Word: {str(e2)}"
+                            )
                             return redirect("dashboard")
-                    
+
                 elif tool_type == "pdf_to_txt":
                     try:
                         converted_path = os.path.join(output_dir, f"{output_name}.txt")
@@ -149,11 +160,13 @@ def process_tool(request, file_id):
                                 page_text = page.extract_text()
                                 if page_text:
                                     text += page_text + "\n\n"
-                        
+
                         with open(converted_path, "w", encoding="utf-8") as f:
                             f.write(text)
-                        messages.success(request, "PDF file successfully converted to TXT")
-                    except Exception as e:
+                        messages.success(
+                            request, "PDF file successfully converted to TXT"
+                        )
+                    except Exception:
                         # Fallback to PyPDF2
                         try:
                             pdf_reader = PyPDF2.PdfReader(input_path)
@@ -161,17 +174,23 @@ def process_tool(request, file_id):
                             for page_num in range(len(pdf_reader.pages)):
                                 page = pdf_reader.pages[page_num]
                                 text += page.extract_text() + "\n\n"
-                            
+
                             with open(converted_path, "w", encoding="utf-8") as f:
                                 f.write(text)
-                            messages.success(request, "PDF file successfully converted to TXT")
+                            messages.success(
+                                request, "PDF file successfully converted to TXT"
+                            )
                         except Exception as e2:
-                            messages.error(request, f"Error converting PDF to TXT: {str(e2)}")
+                            messages.error(
+                                request, f"Error converting PDF to TXT: {str(e2)}"
+                            )
                             return redirect("dashboard")
-                    
+
                 elif tool_type == "compress_pdf":
                     converted_path = os.path.join(output_dir, f"{output_name}.zip")
-                    with zipfile.ZipFile(converted_path, 'w', compression=zipfile.ZIP_DEFLATED) as zipf:
+                    with zipfile.ZipFile(
+                        converted_path, "w", compression=zipfile.ZIP_DEFLATED
+                    ) as zipf:
                         zipf.write(input_path, arcname=os.path.basename(input_path))
                     messages.success(request, "PDF file successfully compressed")
 
@@ -179,36 +198,41 @@ def process_tool(request, file_id):
             elif ext in [".jpg", ".jpeg", ".png", ".gif"]:
                 try:
                     img = Image.open(input_path)
-                    
+
                     if tool_type == "to_jpg":
                         converted_path = os.path.join(output_dir, f"{output_name}.jpg")
-                        if img.mode in ('RGBA', 'LA', 'P'):
-                            rgb_img = Image.new('RGB', img.size, (255, 255, 255))
-                            rgb_img.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+                        if img.mode in ("RGBA", "LA", "P"):
+                            rgb_img = Image.new("RGB", img.size, (255, 255, 255))
+                            rgb_img.paste(
+                                img,
+                                mask=img.split()[-1] if img.mode == "RGBA" else None,
+                            )
                             rgb_img.save(converted_path, "JPEG", quality=95)
                         else:
                             img.convert("RGB").save(converted_path, "JPEG", quality=95)
                         messages.success(request, "Image successfully converted to JPG")
-                        
+
                     elif tool_type == "to_png":
                         converted_path = os.path.join(output_dir, f"{output_name}.png")
                         img.save(converted_path, "PNG")
                         messages.success(request, "Image successfully converted to PNG")
-                        
+
                     elif tool_type == "to_gif":
                         converted_path = os.path.join(output_dir, f"{output_name}.gif")
-                        if img.mode == 'P':
+                        if img.mode == "P":
                             img.save(converted_path, "GIF")
                         else:
-                            img.convert('P').save(converted_path, "GIF")
+                            img.convert("P").save(converted_path, "GIF")
                         messages.success(request, "Image successfully converted to GIF")
-                        
+
                     elif tool_type == "compress_image":
                         converted_path = os.path.join(output_dir, f"{output_name}.zip")
-                        with zipfile.ZipFile(converted_path, 'w', compression=zipfile.ZIP_DEFLATED) as zipf:
+                        with zipfile.ZipFile(
+                            converted_path, "w", compression=zipfile.ZIP_DEFLATED
+                        ) as zipf:
                             zipf.write(input_path, arcname=os.path.basename(input_path))
                         messages.success(request, "Image successfully compressed")
-                        
+
                 except Exception as e:
                     messages.error(request, f"Error processing image: {str(e)}")
                     return redirect("dashboard")
@@ -218,28 +242,38 @@ def process_tool(request, file_id):
                 if tool_type == "extract":
                     extract_dir = os.path.join(output_dir, f"{output_name}_extracted")
                     os.makedirs(extract_dir, exist_ok=True)
-                    
+
                     # Only ZIP is fully supported
                     if ext == ".zip":
                         try:
-                            with zipfile.ZipFile(input_path, 'r') as zip_ref:
+                            with zipfile.ZipFile(input_path, "r") as zip_ref:
                                 zip_ref.extractall(extract_dir)
-                            
+
                             # Create zip for download
-                            converted_path = os.path.join(output_dir, f"{output_name}.zip")
-                            with zipfile.ZipFile(converted_path, 'w', compression=zipfile.ZIP_DEFLATED) as zipf:
+                            converted_path = os.path.join(
+                                output_dir, f"{output_name}.zip"
+                            )
+                            with zipfile.ZipFile(
+                                converted_path, "w", compression=zipfile.ZIP_DEFLATED
+                            ) as zipf:
                                 for root, dirs, files in os.walk(extract_dir):
                                     for file in files:
                                         file_path = os.path.join(root, file)
-                                        arcname = os.path.relpath(file_path, extract_dir)
+                                        arcname = os.path.relpath(
+                                            file_path, extract_dir
+                                        )
                                         zipf.write(file_path, arcname)
-                            
+
                             messages.success(request, "Archive successfully extracted")
                         except Exception as e:
-                            messages.error(request, f"Error extracting archive: {str(e)}")
+                            messages.error(
+                                request, f"Error extracting archive: {str(e)}"
+                            )
                             return redirect("dashboard")
                     else:
-                        messages.error(request, "Only ZIP format is supported for extraction")
+                        messages.error(
+                            request, "Only ZIP format is supported for extraction"
+                        )
                         return redirect("dashboard")
 
             # ---------------- CSV FILES (.csv) ----------------
@@ -247,36 +281,48 @@ def process_tool(request, file_id):
                 if tool_type == "to_excel":
                     try:
                         # Try different encodings
-                        encodings = ['utf-8', 'latin-1', 'cp1252']
+                        encodings = ["utf-8", "latin-1", "cp1252"]
                         df = None
-                        
+
                         for encoding in encodings:
                             try:
                                 df = pd.read_csv(input_path, encoding=encoding)
                                 break
                             except:
                                 continue
-                        
+
                         if df is None:
-                            df = pd.read_csv(input_path, encoding='utf-8', errors='ignore')
-                        
+                            df = pd.read_csv(
+                                input_path, encoding="utf-8", errors="ignore"
+                            )
+
                         converted_path = os.path.join(output_dir, f"{output_name}.xlsx")
-                        df.to_excel(converted_path, index=False, engine='openpyxl')
-                        messages.success(request, "CSV file successfully converted to Excel")
+                        df.to_excel(converted_path, index=False, engine="openpyxl")
+                        messages.success(
+                            request, "CSV file successfully converted to Excel"
+                        )
                     except Exception as e:
-                        messages.error(request, f"Error converting CSV to Excel: {str(e)}")
+                        messages.error(
+                            request, f"Error converting CSV to Excel: {str(e)}"
+                        )
                         return redirect("dashboard")
 
             # ---------------- EXCEL FILES (.xls, .xlsx) ----------------
             elif ext in [".xls", ".xlsx"]:
                 if tool_type == "to_csv":
                     try:
-                        df = pd.read_excel(input_path, engine='openpyxl' if ext == '.xlsx' else None)
+                        df = pd.read_excel(
+                            input_path, engine="openpyxl" if ext == ".xlsx" else None
+                        )
                         converted_path = os.path.join(output_dir, f"{output_name}.csv")
                         df.to_csv(converted_path, index=False, encoding="utf-8-sig")
-                        messages.success(request, "Excel file successfully converted to CSV")
+                        messages.success(
+                            request, "Excel file successfully converted to CSV"
+                        )
                     except Exception as e:
-                        messages.error(request, f"Error converting Excel to CSV: {str(e)}")
+                        messages.error(
+                            request, f"Error converting Excel to CSV: {str(e)}"
+                        )
                         return redirect("dashboard")
 
             # ---------------- Save converted file ----------------
@@ -286,7 +332,7 @@ def process_tool(request, file_id):
                     os.remove(converted_path)
                     messages.error(request, "Output file is too large (max 100MB)")
                     return redirect("dashboard")
-                
+
                 relative_path = os.path.relpath(converted_path, settings.MEDIA_ROOT)
                 user_file.converted_file.name = relative_path
                 user_file.save()
@@ -310,51 +356,51 @@ def download_file(request, file_id):
         return redirect("dashboard")
 
     file_path = user_file.converted_file.path
-    
+
     # Additional security check
     if not os.path.exists(file_path):
         messages.error(request, "File not found on server")
         return redirect("dashboard")
-    
+
     # Check if file is in allowed directory
     media_root = os.path.normpath(settings.MEDIA_ROOT)
     file_path_norm = os.path.normpath(file_path)
     if not file_path_norm.startswith(media_root):
         messages.error(request, "Unauthorized access")
         return redirect("dashboard")
-    
+
     try:
-        response = FileResponse(open(file_path, 'rb'), as_attachment=True)
-        
+        response = FileResponse(open(file_path, "rb"), as_attachment=True)
+
         # Clean filename
         filename = os.path.basename(file_path)
         # Remove any non-ascii characters for safety
-        filename = ''.join(char for char in filename if ord(char) < 128)
-        
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
-        
+        filename = "".join(char for char in filename if ord(char) < 128)
+
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
         # Set appropriate Content-Type
         content_types = {
-            '.pdf': 'application/pdf',
-            '.txt': 'text/plain',
-            '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            '.doc': 'application/msword',
-            '.jpg': 'image/jpeg',
-            '.jpeg': 'image/jpeg',
-            '.png': 'image/png',
-            '.gif': 'image/gif',
-            '.zip': 'application/zip',
-            '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            '.xls': 'application/vnd.ms-excel',
-            '.csv': 'text/csv',
+            ".pdf": "application/pdf",
+            ".txt": "text/plain",
+            ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".doc": "application/msword",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".png": "image/png",
+            ".gif": "image/gif",
+            ".zip": "application/zip",
+            ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ".xls": "application/vnd.ms-excel",
+            ".csv": "text/csv",
         }
-        
+
         ext = os.path.splitext(filename)[1].lower()
         if ext in content_types:
-            response['Content-Type'] = content_types[ext]
-        
+            response["Content-Type"] = content_types[ext]
+
         return response
-        
+
     except Exception as e:
         messages.error(request, f"Download error: {str(e)}")
         return redirect("dashboard")

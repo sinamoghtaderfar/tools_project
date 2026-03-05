@@ -9,10 +9,10 @@ from pdf2docx import Converter
 from PyPDF2 import PdfMerger
 import zipfile
 from django.urls import reverse
-from django.contrib.auth.decorators import login_required
+
 
 def home(request):
-    return render(request, 'home.html')
+    return render(request, "home.html")
 
 
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
@@ -50,15 +50,15 @@ def guest_tool(request, tool_name):
             merger.close()
             output_io.seek(0)
 
-            response = HttpResponse(output_io.read(), content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename="merged.pdf"'
+            response = HttpResponse(output_io.read(), content_type="application/pdf")
+            response["Content-Disposition"] = 'attachment; filename="merged.pdf"'
             return response
 
         # COMPRESS IMAGE
         elif tool_name == "compress-image":
             zip_io = io.BytesIO()
 
-            with zipfile.ZipFile(zip_io, 'w') as zipf:
+            with zipfile.ZipFile(zip_io, "w") as zipf:
                 for f in uploaded_files:
                     f.seek(0)
 
@@ -67,7 +67,9 @@ def guest_tool(request, tool_name):
                     img_io = io.BytesIO()
 
                     # Save image with compression
-                    image.save(img_io, format=image.format or 'JPEG', optimize=True, quality=70)
+                    image.save(
+                        img_io, format=image.format or "JPEG", optimize=True, quality=70
+                    )
                     img_io.seek(0)
 
                     # Add compressed image to ZIP file
@@ -75,25 +77,31 @@ def guest_tool(request, tool_name):
 
             zip_io.seek(0)
 
-            response = HttpResponse(zip_io.read(), content_type='application/zip')
-            response['Content-Disposition'] = 'attachment; filename="compressed_images.zip"'
+            response = HttpResponse(zip_io.read(), content_type="application/zip")
+            response["Content-Disposition"] = (
+                'attachment; filename="compressed_images.zip"'
+            )
             return response
 
         # CONVERT PDF TO DOCX
         elif tool_name == "convert-pdf":
             zip_io = io.BytesIO()
 
-            with zipfile.ZipFile(zip_io, 'w') as zipf:
+            with zipfile.ZipFile(zip_io, "w") as zipf:
                 for f in uploaded_files:
                     f.seek(0)
 
                     # Create temporary file for the uploaded PDF
-                    with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_pdf:
+                    with tempfile.NamedTemporaryFile(
+                        delete=False, suffix=".pdf"
+                    ) as tmp_pdf:
                         tmp_pdf.write(f.read())
                         tmp_pdf_path = tmp_pdf.name
 
                     # Create temporary file for the output DOCX
-                    with tempfile.NamedTemporaryFile(delete=False, suffix='.docx') as tmp_docx:
+                    with tempfile.NamedTemporaryFile(
+                        delete=False, suffix=".docx"
+                    ) as tmp_docx:
                         tmp_docx_path = tmp_docx.name
 
                     try:
@@ -103,7 +111,7 @@ def guest_tool(request, tool_name):
                         cv.close()
 
                         # Read the converted DOCX file
-                        with open(tmp_docx_path, 'rb') as docx_file:
+                        with open(tmp_docx_path, "rb") as docx_file:
                             docx_content = docx_file.read()
 
                         # Add DOCX file to ZIP archive
@@ -120,15 +128,14 @@ def guest_tool(request, tool_name):
 
             zip_io.seek(0)
 
-            response = HttpResponse(zip_io.read(), content_type='application/zip')
-            response['Content-Disposition'] = 'attachment; filename="converted_files.zip"'
+            response = HttpResponse(zip_io.read(), content_type="application/zip")
+            response["Content-Disposition"] = (
+                'attachment; filename="converted_files.zip"'
+            )
             return response
 
     # GET request
     return render(request, "tools/tool_page.html", {"tool_name": tool_name})
-
-
-
 
 
 TOOLS = {
@@ -136,53 +143,134 @@ TOOLS = {
         "title": "Word Tools",
         "icon": "📝",
         "tools": [
-            {"name": "word_to_pdf", "display": "Word to PDF", "url": "word_to_pdf", "requires_login": True},
-            {"name": "word_to_txt", "display": "Word to TXT", "url": "word_to_txt", "requires_login": True},
-            {"name": "compress_word", "display": "Compress Word", "url": "compress_word", "requires_login": True},
-        ]
+            {
+                "name": "word_to_pdf",
+                "display": "Word to PDF",
+                "url": "word_to_pdf",
+                "requires_login": True,
+            },
+            {
+                "name": "word_to_txt",
+                "display": "Word to TXT",
+                "url": "word_to_txt",
+                "requires_login": True,
+            },
+            {
+                "name": "compress_word",
+                "display": "Compress Word",
+                "url": "compress_word",
+                "requires_login": True,
+            },
+        ],
     },
     "pdf": {
         "title": "PDF Tools",
         "icon": "📄",
         "tools": [
-            {"name": "convert-pdf", "display": "Convert PDF", "url": "convert-pdf", "requires_login": False},
-            {"name": "merge-pdf", "display": "Merge PDF", "url": "merge-pdf", "requires_login": False},
-            {"name": "pdf_to_word", "display": "PDF to Word", "url": "pdf_to_word", "requires_login": True},
-            {"name": "pdf_to_txt", "display": "PDF to TXT", "url": "pdf_to_txt", "requires_login": True},
-            {"name": "compress_pdf", "display": "Compress PDF", "url": "compress_pdf", "requires_login": True},
-        ]
+            {
+                "name": "convert-pdf",
+                "display": "Convert PDF",
+                "url": "convert-pdf",
+                "requires_login": False,
+            },
+            {
+                "name": "merge-pdf",
+                "display": "Merge PDF",
+                "url": "merge-pdf",
+                "requires_login": False,
+            },
+            {
+                "name": "pdf_to_word",
+                "display": "PDF to Word",
+                "url": "pdf_to_word",
+                "requires_login": True,
+            },
+            {
+                "name": "pdf_to_txt",
+                "display": "PDF to TXT",
+                "url": "pdf_to_txt",
+                "requires_login": True,
+            },
+            {
+                "name": "compress_pdf",
+                "display": "Compress PDF",
+                "url": "compress_pdf",
+                "requires_login": True,
+            },
+        ],
     },
     "image": {
         "title": "Image Tools",
         "icon": "🖼️",
         "tools": [
-            {"name": "compress-image", "display": "Compress Image", "url": "compress-image", "requires_login": False},
-            {"name": "to_jpg", "display": "Convert to JPG", "url": "to_jpg", "requires_login": True},
-            {"name": "to_png", "display": "Convert to PNG", "url": "to_png", "requires_login": True},
-            {"name": "to_gif", "display": "Convert to GIF", "url": "to_gif", "requires_login": True},
-            {"name": "compress_image", "display": "Compress Image", "url": "compress_image", "requires_login": True},
-        ]
+            {
+                "name": "compress-image",
+                "display": "Compress Image",
+                "url": "compress-image",
+                "requires_login": False,
+            },
+            {
+                "name": "to_jpg",
+                "display": "Convert to JPG",
+                "url": "to_jpg",
+                "requires_login": True,
+            },
+            {
+                "name": "to_png",
+                "display": "Convert to PNG",
+                "url": "to_png",
+                "requires_login": True,
+            },
+            {
+                "name": "to_gif",
+                "display": "Convert to GIF",
+                "url": "to_gif",
+                "requires_login": True,
+            },
+            {
+                "name": "compress_image",
+                "display": "Compress Image",
+                "url": "compress_image",
+                "requires_login": True,
+            },
+        ],
     },
     "archive": {
         "title": "Archive Tools",
         "icon": "📦",
         "tools": [
-            {"name": "extract", "display": "Extract Archive", "url": "extract", "requires_login": True},
-        ]
+            {
+                "name": "extract",
+                "display": "Extract Archive",
+                "url": "extract",
+                "requires_login": True,
+            },
+        ],
     },
     "excel": {
         "title": "Excel Tools",
         "icon": "📊",
         "tools": [
-            {"name": "to_excel", "display": "CSV to Excel", "url": "to_excel", "requires_login": True},
-            {"name": "to_csv", "display": "Excel to CSV", "url": "to_csv", "requires_login": True},
-        ]
-    }
+            {
+                "name": "to_excel",
+                "display": "CSV to Excel",
+                "url": "to_excel",
+                "requires_login": True,
+            },
+            {
+                "name": "to_csv",
+                "display": "Excel to CSV",
+                "url": "to_csv",
+                "requires_login": True,
+            },
+        ],
+    },
 }
+
 
 def tools_list(request):
     """show tools list with dynamic login labels"""
-    tools_categories = TOOLS.copy()  
+    tools_categories = TOOLS.copy()
     user_logged_in = request.user.is_authenticated
 
     for category in tools_categories.values():
@@ -198,16 +286,13 @@ def tools_list(request):
                 tool["status_text"] = "Free"
                 tool["border_color"] = "border-green-400"
 
-    context = {
-        "tools_categories": tools_categories
-    }
+    context = {"tools_categories": tools_categories}
     return render(request, "tools/tools_list.html", context)
 
 
 def tool_page(request, tool_slug):
     tool_data = next(
-        (t for c in TOOLS.values() for t in c["tools"] if t["url"] == tool_slug),
-        None
+        (t for c in TOOLS.values() for t in c["tools"] if t["url"] == tool_slug), None
     )
     if not tool_data:
         messages.error(request, "Tool not found.")
@@ -219,10 +304,15 @@ def tool_page(request, tool_slug):
     if requires_login:
         if not request.user.is_authenticated:
             login_url = f"{reverse('login')}?next={request.path}"
-            messages.warning(request, f"Please log in to use '{tool_display_name}' tool.")
+            messages.warning(
+                request, f"Please log in to use '{tool_display_name}' tool."
+            )
             return redirect(login_url)
         if requires_login and request.user.is_authenticated:
-            messages.info(request, f"'{tool_display_name}' is available for you! Redirecting to dashboard...")
+            messages.info(
+                request,
+                f"'{tool_display_name}' is available for you! Redirecting to dashboard...",
+            )
             return redirect("dashboard")
 
     return guest_tool(request, tool_slug)

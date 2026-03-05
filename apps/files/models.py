@@ -5,14 +5,16 @@ import os
 
 
 def user_directory_path(instance, filename):
-    ext = filename.split('.')[-1]
+    ext = filename.split(".")[-1]
     unique_filename = f"{uuid.uuid4()}.{ext}"
     return f"uploads/user_{instance.user.id}/{unique_filename}"
 
+
 def user_output_path(instance, filename):
-    ext = filename.split('.')[-1]
+    ext = filename.split(".")[-1]
     unique_name = f"{uuid.uuid4()}.{ext}"
     return f"outputs/user_{instance.user.id}/{unique_name}"
+
 
 class UserFile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -33,22 +35,22 @@ class UserFile(models.Model):
     def file_category(self):
         ext = self.extension()
 
-        if ext in ['.doc', '.docx']:
+        if ext in [".doc", ".docx"]:
             return "word"
-        elif ext in ['.pdf']:
+        elif ext in [".pdf"]:
             return "pdf"
-        elif ext in ['.png', '.jpg', '.jpeg', '.webp', ".heic"]:
+        elif ext in [".png", ".jpg", ".jpeg", ".webp", ".heic"]:
             return "image"
-        elif ext in ['.zip', '.rar']:
+        elif ext in [".zip", ".rar"]:
             return "archive"
-        elif ext in ['.csv']:
+        elif ext in [".csv"]:
             return "csv"
-        elif ext in ['.xls', '.xlsx']:
+        elif ext in [".xls", ".xlsx"]:
             return "excel"
         else:
             return "other"
 
-    # suggest 
+    # suggest
     def suggested_tools(self):
         category = self.file_category()
 
@@ -78,7 +80,7 @@ class UserFile(models.Model):
             "excel": [
                 {"label": "Convert to CSV", "value": "to_csv"},
             ],
-            "other": []
+            "other": [],
         }
 
         return tools.get(category, [])

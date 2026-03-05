@@ -10,6 +10,8 @@ from django.urls import reverse
 from django.views.decorators.cache import never_cache, cache_control
 from django.contrib.auth import logout
 from django.views.decorators.csrf import csrf_protect
+
+
 def register_view(request):
     """User registration view with messages"""
     if request.method == "POST":
@@ -27,9 +29,7 @@ def register_view(request):
             return redirect("register")
 
         user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password1
+            username=username, email=email, password=password1
         )
 
         # This message will be passed to the login page
@@ -38,14 +38,15 @@ def register_view(request):
 
     return render(request, "accounts/register.html")
 
+
 @never_cache
 @cache_control(no_cache=True, must_revalidate=True, no_store=True, max_age=0)
 def login_view(request):
     if request.user.is_authenticated:
-        
+
         next_url = request.GET.get("next") or "//"
         return redirect(next_url)
-    
+
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
@@ -71,7 +72,7 @@ def login_view(request):
                         return redirect("/")  # fallback
             else:
                 # default redirect
-                return redirect("/")  
+                return redirect("/")
 
         else:
             messages.error(request, "Invalid username or password")
@@ -80,12 +81,15 @@ def login_view(request):
     # GET request
     next_url = request.GET.get("next")
     return render(request, "accounts/login.html", {"next": next_url})
+
+
 @csrf_protect
 def logout_view(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         logout(request)
-        return redirect('login')
-    return redirect('dashboard')
+        return redirect("login")
+    return redirect("dashboard")
+
 
 @login_required
 def dashboard_view(request):
@@ -99,11 +103,11 @@ def dashboard_view(request):
                 user=request.user,
                 original_file=uploaded_file,
                 original_name=uploaded_file.name,
-                tool_type=tool_type
+                tool_type=tool_type,
             )
             messages.success(request, "File uploaded successfully!")  # Upload message
 
-    files = UserFile.objects.filter(user=request.user).order_by('-created_at')
+    files = UserFile.objects.filter(user=request.user).order_by("-created_at")
     return render(request, "accounts/dashboard.html", {"files": files})
 
 
@@ -112,9 +116,4 @@ def dashboard_view(request):
 def keep_alive(request):
     """Keep session alive"""
     request.session.set_expiry(180)
-    return JsonResponse({
-        "status": "ok",
-        "message": "Session extended"
-    })
-    
-    
+    return JsonResponse({"status": "ok", "message": "Session extended"})

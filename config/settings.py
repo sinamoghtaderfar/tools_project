@@ -17,12 +17,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -45,10 +44,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'apps.core',
-    'apps.editor',
-    'apps.accounts',
-    'apps.files',
+    "apps.core",
+    "apps.editor",
+    "apps.accounts",
+    "apps.files",
 ]
 
 MIDDLEWARE = [
@@ -67,8 +66,8 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            BASE_DIR / 'templates',          
-            BASE_DIR / 'templates/includes', 
+            BASE_DIR / "templates",
+            BASE_DIR / "templates/includes",
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -136,21 +135,21 @@ STATICFILES_DIRS = [
 
 # Database
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     }
 }
 
 
-LOGIN_REDIRECT_URL = '/accounts/dashboard/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = "/accounts/dashboard/"
+LOGOUT_REDIRECT_URL = "/"
 
-#SESSION_COOKIE_AGE = 1209600   # 2 weeks
+# SESSION_COOKIE_AGE = 1209600   # 2 weeks
 
 SESSION_COOKIE_AGE = 180  # 3 minutes
 SESSION_SAVE_EVERY_REQUEST = True
